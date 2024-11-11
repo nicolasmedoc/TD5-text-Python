@@ -2,7 +2,7 @@ import dataset
 import textprocessing
 import dimred
 import projection
-from flask import Flask
+from flask import Flask,request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -15,6 +15,8 @@ dataset, true_k = dataset.get20newsgroups()
 x_tfidf, vectorizer = textprocessing.get_tfidf(dataset.data)
 x_lsa, lsa = dimred.lsa(x_tfidf)
 proj_euclidean = projection.tsne_euclidean(x_lsa)
+proj_cosine = projection.tsne_cosine(x_tfidf)
+proj_euclidean_tfidf = projection.tsne_euclidean_tfidf(x_tfidf)
 
 @app.route("/")
 def hello_world():
@@ -22,4 +24,12 @@ def hello_world():
 
 @app.route("/getProjection")
 def get_projection():
-    return {'projection': proj_euclidean.tolist(), 'categories': dataset.target.tolist()}
+    distance = request.args.get('distance');
+    proj = None
+    if distance=='euclidean':
+        proj = proj_euclidean
+    elif distance=='cosine':
+        proj = proj_cosine
+    elif distance == 'euclidean_tfidf':
+        proj = proj_euclidean_tfidf
+    return {'projection': proj.tolist(), 'categories': dataset.target.tolist()}

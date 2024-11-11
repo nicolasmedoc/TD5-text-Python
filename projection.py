@@ -13,6 +13,6 @@ def tsne_euclidean(data):
     return model.fit_transform(data)
 
 def tsne_euclidean_tfidf(data):
-    print("TSNE euclidean...")
+    print("TSNE euclidean with tfidf...")
     model = TSNE(random_state=1, init="random")
     return model.fit_transform(data)
