@@ -38,8 +38,8 @@ if __name__ == '__main__':
     # Xpr = model.fit_transform(distance_matrix)
     # scatterplot.show(Xpr,kmeans.labels_)
 
-    embs_cosine = projection.tsne_cosine(x_tfidf)
-    embs_euclidean = projection.tsne_euclidean(x_lsa)
+    proj_euclidean = projection.tsne_euclidean(x_lsa)
+    proj_cosine = projection.tsne_cosine(x_tfidf)
 
-    scatterplot.show(embs_cosine,dataset.target)
-    scatterplot.show(embs_euclidean,kmeans.labels_)
+    scatterplot.show(proj_euclidean,kmeans.labels_)
+    scatterplot.show(proj_cosine,dataset.target)
