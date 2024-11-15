@@ -5,6 +5,7 @@ import clustering
 import dimred
 import scatterplot
 import projection
+import dendogram
 from sklearn.metrics import pairwise_distances
 
 
@@ -30,16 +31,22 @@ if __name__ == '__main__':
     x_tfidf, vectorizer = textprocessing.get_tfidf(dataset.data)
     x_lsa, lsa = dimred.lsa(x_tfidf)
 
-    kmeans = clustering.kmeans(true_k, x_lsa)
-    topterms = get_cluster_top_terms(lsa, vectorizer, kmeans, true_k)
+    # kmeans = clustering.kmeans(true_k, x_lsa)
+    # topterms = get_cluster_top_terms(lsa, vectorizer, kmeans, true_k)
 
     # distance_matrix = pairwise_distances(x_tfidf, x_tfidf, metric='cosine', n_jobs=-1)
     # model = TSNE(metric="precomputed", init="random")
     # Xpr = model.fit_transform(distance_matrix)
     # scatterplot.show(Xpr,kmeans.labels_)
 
-    proj_euclidean = projection.tsne_euclidean(x_lsa)
-    proj_cosine = projection.tsne_cosine(x_tfidf)
+    # proj_euclidean = projection.tsne_euclidean(x_lsa)
+    # proj_cosine = projection.tsne_cosine(x_tfidf)
 
-    scatterplot.show(proj_euclidean,kmeans.labels_)
-    scatterplot.show(proj_cosine,dataset.target)
+    # scatterplot.show(proj_euclidean, kmeans.labels_)
+    # scatterplot.show(proj_cosine, dataset.target)
+
+    aggl_cluster = clustering.agglomerative(None, x_lsa,"ward","euclidean",distance_threshold=0)
+    print(aggl_cluster.children_)
+    dend_dict = dendogram.get_tree_dict(aggl_cluster)
+    # dendogram.show_dendogram(aggl_cluster, truncate_mode="level", p=5)
+    dendogram.show_dendogram(aggl_cluster, truncate_mode="none", p=5)
