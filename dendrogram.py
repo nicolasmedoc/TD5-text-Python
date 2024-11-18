@@ -25,7 +25,7 @@ def plot_dendrogram(model, **kwargs):
     # Plot the corresponding dendrogram
     dendrogram(linkage_matrix, color_threshold=0.5*max(model.distances_), **kwargs)
 
-def show_dendogram(model, **kwargs):
+def show_dendrogram(model, **kwargs):
     plot_dendrogram(model, **kwargs)
     plt.title("Hierarchical Clustering Dendrogram")
     plt.xlabel("Number of points in node (or index of point if no parenthesis).")
@@ -41,7 +41,8 @@ def get_tree_dict(model, true_k=None, ground_truth=None):
     counts = np.zeros(model.children_.shape[0])
     counts_by_labels = np.zeros((model.children_.shape[0],n_clusters))
     n_samples = len(labels)
-    nodes=[]
+    nodes = []
+    allnodes = [{}]*(n_samples+len(model.children_))
     for i, merge in enumerate(model.children_):
         current_count = 0
         for child_idx in merge:
@@ -49,23 +50,31 @@ def get_tree_dict(model, true_k=None, ground_truth=None):
                 counts_by_labels[i, labels[child_idx]] += 1
                 # leaf node
                 current_count += 1
+                count_by_categ = [0] * n_clusters
+                count_by_categ[labels[child_idx]] = 1
+                allnodes[child_idx.item()] = {"node_id":child_idx.item(),"parent":i+n_samples, "count_by_true_categ": count_by_categ, "true_category": labels[child_idx].item()}
             else:
                 current_count += counts[child_idx - n_samples]
                 for label in range(0, n_clusters, 1):
                     counts_by_labels[i, label] += counts_by_labels[child_idx - n_samples, label]
         counts[i] = current_count
-        nodes.append({"node_id": i+n_samples, "parent":None, "distance": model.distances_[i], "children": [{"node_id": child, "parent":i+n_samples, "children":[], "category": labels[child] if child < n_samples else None} for child in merge]})
+        node_dict = {"node_id": i+n_samples, "parent":None, "distance": model.distances_[i].item()}
+        nodes.append(node_dict)
+        allnodes[i+n_samples] = node_dict
 
-
-    for i,node in enumerate(nodes):
+    for i, node in enumerate(nodes):
+        hasLeafChild = False
         children = []
-        for child in node["children"]:
-            if child["node_id"] >= n_samples:
+        for child_idx in model.children_[i]:
+            if child_idx >= n_samples:
                 # set parent to this child
-                nodes[child["node_id"] - n_samples]["parent"] = node["node_id"]
-                children.append(nodes[child["node_id"] - n_samples])
-        node["children"] = children
-        node["count_by_categ"] = counts_by_labels[i].tolist()
+                allnodes[child_idx]["parent"] = node["node_id"]
+                children.append(allnodes[child_idx])
+            else:
+                hasLeafChild = True
+        if not hasLeafChild:
+            node["children"] = children
+        node["count_by_true_categ"] = counts_by_labels[node["node_id"]-n_samples].tolist()
 
     root_idx = [value for value in nodes if value["parent"] is None]
     return root_idx[0]

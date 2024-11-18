@@ -5,7 +5,7 @@ import clustering
 import dimred
 import scatterplot
 import projection
-import dendogram
+import dendrogram
 from sklearn.metrics import pairwise_distances
 
 
@@ -47,6 +47,6 @@ if __name__ == '__main__':
 
     aggl_cluster = clustering.agglomerative(None, x_lsa,"ward","euclidean",distance_threshold=0)
     print(aggl_cluster.children_)
-    dend_dict = dendogram.get_tree_dict(aggl_cluster)
+    dend_dict = dendrogram.get_tree_dict(aggl_cluster)
     # dendogram.show_dendogram(aggl_cluster, truncate_mode="level", p=5)
-    dendogram.show_dendogram(aggl_cluster, truncate_mode="none", p=5)
+    dendrogram.show_dendrogram(aggl_cluster, truncate_mode="none", p=5)

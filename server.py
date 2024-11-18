@@ -3,7 +3,7 @@ import textprocessing
 import dimred
 import projection
 import clustering
-import dendogram
+import dendrogram
 from flask import Flask
 from flask_cors import CORS
 
@@ -20,10 +20,10 @@ proj_euclidean = projection.tsne_euclidean(x_lsa)
 # cluster_tree = clustering.agglomerative(true_k,x_lsa,"ward","euclidean")
 cluster_tree = clustering.agglomerative(None,x_lsa,"ward","euclidean",distance_threshold=0)
 # dendogram.show_dendogram(cluster_tree, truncate_mode="level", p=4)
-dendogram.show_dendogram(cluster_tree, truncate_mode="none", p=3)
+dendrogram.show_dendrogram(cluster_tree, truncate_mode="none", p=3)
 print("n_clusters = "+str(cluster_tree.n_clusters_) + "true_k="+ str(true_k))
 # cluster_tree_dict = dendogram.get_tree_dict(cluster_tree)
-cluster_tree_dict = dendogram.get_tree_dict(cluster_tree, true_k, dataset.target)
+cluster_tree_dict = dendrogram.get_tree_dict(cluster_tree, true_k, dataset.target)
 
 
 @app.route("/")
@@ -38,6 +38,6 @@ def get_projection():
 
 @app.route("/getClusterTree")
 def get_cluster_tree():
-    return {"cluster_tree": cluster_tree_dict, "categories": dataset.target.tolist(), "distances": cluster_tree.distances_.tolist()}
-    # return {"cluster_tree": cluster_tree_dict, "categories": cluster_tree.labels_.tolist()}
-    # return {"cluster_tree": cluster_tree.children_.tolist(), "categories": cluster_tree.labels_.tolist()}
+    return {"cluster_tree": cluster_tree_dict, "true_categories": [*range(0,true_k)], "distances": cluster_tree.distances_.tolist()}
+    # return {"cluster_tree": cluster_tree_dict, "categories": cluster_tree.labels_.tolist(), "distances": cluster_tree.distances_.tolist()}
+    # return {"cluster_tree": cluster_tree.children_.tolist(), "categories": dataset.target.tolist(), "distances": cluster_tree.distances_.tolist()}
